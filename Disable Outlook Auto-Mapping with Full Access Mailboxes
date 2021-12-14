@@ -1,0 +1,6 @@
+#This example grants the user Mark Steele full access permission to Jeroen Cool’s mailbox and disables the auto-mapping feature.
+Add-MailboxPermission -Identity JeroenC -User 'Mark Steele' -AccessRight FullAccess -InheritanceType All -Automapping $false
+#This example removes auto-mapping on an existing shared mailbox and removes the auto-mapping behavior for users who have already been granted Full Access permissions.
+$FixAutoMapping = Get-MailboxPermission sharedmailbox |where {$_.AccessRights -eq "FullAccess" -and $_.IsInherited -eq $false}
+$FixAutoMapping | Remove-MailboxPermission
+$FixAutoMapping | ForEach {Add-MailboxPermission -Identity $_.Identity -User $_.User -AccessRights:FullAccess -AutoMapping $false}
