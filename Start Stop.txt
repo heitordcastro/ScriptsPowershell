@@ -1,0 +1,72 @@
+#--------------------------------------------------------------------------------------------------------------------
+# Este Script valida as Tags das VMs. Para que ele funcione é necessário que as tags sejam cadastradas na Vm target.
+# start-stop = true
+# stop-time = HH:mm
+# start-time = HH:mm
+#--------------------------------------------------------------------------------------------------------------------
+Import-Module Az.Compute
+$Start="06:00"
+$connectionName = "AzureRunAsConnection"
+try
+{
+$spc = Get-AutomationConnection -Name $connectionName
+"Logging in to Azure..."
+Add-AzAccount -ServicePrincipal -TenantId $spc.TenantId -ApplicationId $spc.ApplicationId -CertificateThumbprint $spc.CertificateThumbprint
+Select-AzSubscription $spc.SubscriptionId
+}
+catch {
+Write-Error -Message $_.Exception
+throw $_.Exception
+}
+$VMs=Get-AzVM|Where-Object{$_.Location -eq "eastus2"}
+$VMs|foreach-object{
+$StartVM=($_.Tags.GetEnumerator()|Where-Object{$_.key -match "start-stop"}).value
+$StartTime=($_.Tags.GetEnumerator()|Where-Object{$_.key -match "start-time"}).value
+IF($StartVM -eq "true" -and $StartTime -eq $Start){
+Try{
+Write-Host $_.Name
+Start-AzVM -ResourceGroupName $_.ResourceGroupName -Name $_.Name -Confirm:$false -Verbose -ErrorAction Stop
+}
+Catch{
+Write-Error -Message $_.Exception
+throw $_.Exception
+}
+}
+}
+
+#--------------------------------------------------------------------------------------------------------------------
+# Este Script valida as Tags das VMs. Para que ele funcione é necessário que as tags sejam cadastradas na Vm target.
+# start-stop = true
+# stop-time = HH:mm
+# start-time = HH:mm
+#--------------------------------------------------------------------------------------------------------------------
+Import-Module Az.Compute
+$Stop="22:00"
+$connectionName = "AzureRunAsConnection"
+try
+{
+$spc = Get-AutomationConnection -Name $connectionName
+"Logging in to Azure..."
+Add-AzAccount -ServicePrincipal -TenantId $spc.TenantId -ApplicationId $spc.ApplicationId -CertificateThumbprint $spc.CertificateThumbprint
+Select-AzSubscription $spc.SubscriptionId
+}
+catch {
+Write-Error -Message $_.Exception
+throw $_.Exception
+}
+$VMs=Get-AzVM|Where-Object{$_.Location -eq "eastus2"}
+$VMs|foreach-object{
+$StopVM=($_.Tags.GetEnumerator()|Where-Object{$_.key -match "start-stop"}).value
+$StopTime=($_.Tags.GetEnumerator()|Where-Object{$_.key -match "stop-time"}).value
+IF($StopVM -eq "true" -and $StopTime -eq $Stop){
+Try{
+Write-Host $_.Name
+Stop-AzVM -ResourceGroupName $_.ResourceGroupName -Name $_.Name -force -Confirm:$false -Verbose -ErrorAction Stop
+}
+Catch{
+Write-Error -Message $_.Exception
+throw $_.Exception
+}
+}
+}
+

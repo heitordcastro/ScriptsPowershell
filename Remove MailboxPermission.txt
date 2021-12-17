@@ -1,0 +1,15 @@
+#Remove-MailboxPermission
+
+Remove-MailboxPermission -Identity Test1 -User Test2 -AccessRights FullAccess -InheritanceType All
+
+#Parameters
+-AccessRights
+The AccessRights parameter specifies the permission that you want to remove from the user on the mailbox. Valid values are:
+
+FullAccess
+SendAs
+ExternalAccount
+DeleteItem
+ReadPermission
+ChangePermission
+ChangeOwner
